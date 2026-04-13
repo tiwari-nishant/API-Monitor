@@ -21,10 +21,11 @@ A powerful Firefox extension that monitors, captures, and exports all API calls 
 
 ### Supported API Types
 - **REST APIs** - Standard HTTP requests with JSON/XML
-- **WebSocket** - Real-time connection monitoring
-- **Static Assets** - CSS, JS, images, fonts, etc.
 
 ## 📸 Screenshots
+
+<img width="998" height="1928" alt="image" src="https://github.com/user-attachments/assets/69d4e6e7-03f6-4435-962e-2ef0c73f7829" />
+
 
 ### Sidebar Interface
 The extension provides a persistent sidebar with:
