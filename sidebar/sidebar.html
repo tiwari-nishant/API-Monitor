@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenBMC GUI Monitor</title>
+  <link rel="stylesheet" href="sidebar.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1 class="title">Redfish Monitor</h1>
+      <div class="version">v1.0.0</div>
+    </div>
+    
+    <!-- Control Panel -->
+    <div class="control-panel">
+      <div class="control-buttons">
+        <button id="startBtn" class="btn btn-primary">
+          <span class="btn-icon">▶</span>
+          Start Recording
+        </button>
+        <button id="stopBtn" class="btn btn-secondary" disabled>
+          <span class="btn-icon">⏸</span>
+          Stop Recording
+        </button>
+        <button id="exportJsonBtn" class="btn btn-export" title="Export as JSON">
+          <span class="btn-icon">📥</span>
+          Export
+        </button>
+      </div>
+    </div>
+    
+    <!-- Statistics Dashboard -->
+    <div class="stats-panel">
+      <div class="stat-item">
+        <span class="stat-label">Total:</span>
+        <span id="totalCount" class="stat-value">0</span>
+      </div>
+      <!-- Hidden for now - to be added later
+      <div class="stat-item stat-redfish">
+        <span class="stat-label">Redfish:</span>
+        <span id="redfishCount" class="stat-value">0</span>
+      </div>
+      <div class="stat-item stat-websocket">
+        <span class="stat-label">WebSocket:</span>
+        <span id="wsCount" class="stat-value">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Avg:</span>
+        <span id="avgDuration" class="stat-value">0ms</span>
+      </div>
+      -->
+      <div class="toggle-container">
+        <span class="toggle-label" id="toggleLabel">Hide List</span>
+        <label class="toggle-switch" title="Toggle request list visibility">
+          <input type="checkbox" id="toggleListBtn" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+    
+    <!-- Filter Controls -->
+    <div class="filter-panel">
+      <input 
+        type="text" 
+        id="searchInput" 
+        placeholder="🔍 Search URL or method..." 
+        class="search-input"
+      >
+      
+      <div class="filter-row">
+        <select id="methodFilter" class="filter-select">
+          <option value="all">All Methods</option>
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="PATCH">PATCH</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+        
+        <select id="statusFilter" class="filter-select">
+          <option value="all">All Status</option>
+          <option value="2xx">2xx Success</option>
+          <option value="3xx">3xx Redirect</option>
+          <option value="4xx">4xx Client Error</option>
+          <option value="5xx">5xx Server Error</option>
+        </select>
+      </div>
+    </div>
+    
+    <!-- Request List -->
+    <div class="request-list-container">
+      <div class="request-list-header">
+        <span class="header-method">Method</span>
+        <span class="header-url">URL</span>
+        <span class="header-status">Status</span>
+        <span class="header-type">Type</span>
+        <span class="header-time">Time</span>
+      </div>
+      
+      <div class="request-list" id="requestList">
+        <div class="empty-state">
+          <div class="empty-icon">📡</div>
+          <div class="empty-text">No requests captured yet</div>
+          <div class="empty-hint">Click "Start Recording" to begin monitoring</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Request Details Panel (Hidden by default) -->
+    <div class="details-panel" id="detailsPanel">
+      <div class="details-header">
+        <h3 class="details-title">Request Details</h3>
+        <button id="closeDetailsBtn" class="btn-close" title="Close details">×</button>
+      </div>
+      
+      <div class="details-content" id="detailsContent">
+        <!-- Details will be populated dynamically -->
+      </div>
+    </div>
+  </div>
+  
+  <script src="sidebar.js"></script>
+</body>
+</html>
