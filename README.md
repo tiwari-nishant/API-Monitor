@@ -24,7 +24,7 @@ A powerful Firefox extension that monitors, captures, and exports all API calls 
 
 ## 📸 Screenshots
 
-<img width="1004" height="1326" alt="image" src="https://github.com/user-attachments/assets/116c51fa-4a9e-4d56-bccb-df0c172c7759" />
+<img width="1012" height="1940" alt="image" src="https://github.com/user-attachments/assets/d89cb19b-0759-43b2-87b6-e2b2baa80f2b" />
 
 
 ### Sidebar Interface
