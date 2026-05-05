@@ -8,6 +8,8 @@ const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 // const clearBtn = document.getElementById('clearBtn'); // Commented out - will be placed elsewhere
 const exportJsonBtn = document.getElementById('exportJsonBtn');
+const importJsonBtn = document.getElementById('importJsonBtn');
+const importFileInput = document.getElementById('importFileInput');
 const toggleListBtn = document.getElementById('toggleListBtn');
 const toggleLabel = document.getElementById('toggleLabel');
 const searchInput = document.getElementById('searchInput');
@@ -30,9 +32,10 @@ let isRecording = false;
 let currentRequests = [];
 let selectedRequestId = null;
 let port = null;
-let isListVisible = true; // Track list visibility state
+let isListVisible = false; // Track list visibility state - starts hidden
 let pollingInterval = null; // Store interval ID for cleanup
 let isLoadingRequests = false; // Prevent concurrent loads
+let hasImportedData = false; // Track if data is imported
 
 /**
  * Initialize sidebar
@@ -64,6 +67,9 @@ async function initialize() {
   
   // Setup event listeners
   setupEventListeners();
+  
+  // Set initial toggle state (list hidden by default)
+  handleToggleList();
   
   // Start polling for updates when recording
   startPolling();
@@ -107,6 +113,8 @@ function setupEventListeners() {
   stopBtn.addEventListener('click', handleStopRecording);
   // clearBtn.addEventListener('click', handleClearData); // Commented out - will be placed elsewhere
   exportJsonBtn.addEventListener('click', () => handleExport('json'));
+  importJsonBtn.addEventListener('click', handleImportClick);
+  importFileInput.addEventListener('change', handleImportFile);
   toggleListBtn.addEventListener('click', handleToggleList);
   
   // Filter controls
@@ -186,8 +194,18 @@ function updateRecordingButtons() {
  */
 async function handleStartRecording() {
   try {
+    // If there's imported data, clear it first
+    if (hasImportedData) {
+      hasImportedData = false;
+      await browser.runtime.sendMessage({ type: 'CLEAR_DATA' });
+    }
+    
     await browser.runtime.sendMessage({ type: 'START_RECORDING' });
     console.log('Recording started');
+    
+    // Disable import button while recording
+    importJsonBtn.disabled = true;
+    importJsonBtn.classList.add('disabled');
   } catch (error) {
     console.error('Failed to start recording:', error);
     showNotification('Failed to start recording', 'error');
@@ -201,6 +219,10 @@ async function handleStopRecording() {
   try {
     await browser.runtime.sendMessage({ type: 'STOP_RECORDING' });
     console.log('Recording stopped');
+    
+    // Re-enable import button after recording stops
+    importJsonBtn.disabled = false;
+    importJsonBtn.classList.remove('disabled');
   } catch (error) {
     console.error('Failed to stop recording:', error);
     showNotification('Failed to stop recording', 'error');
@@ -257,6 +279,83 @@ async function handleExport(format) {
 }
 
 /**
+ * Handle import button click
+ */
+function handleImportClick() {
+  // Trigger file input
+  importFileInput.click();
+}
+
+/**
+ * Handle import file selection
+ */
+async function handleImportFile(event) {
+  const file = event.target.files[0];
+  if (!file) {
+    return;
+  }
+  
+  try {
+    // Check if there are existing requests
+    const hasExistingData = currentRequests.length > 0;
+    
+    if (hasExistingData) {
+      const confirmed = confirm(
+        'Importing will clear all currently recorded requests. Do you want to continue?'
+      );
+      
+      if (!confirmed) {
+        // Reset file input
+        importFileInput.value = '';
+        return;
+      }
+    }
+    
+    // Read file content
+    const fileContent = await file.text();
+    const importData = JSON.parse(fileContent);
+    
+    // Validate import data structure
+    if (!importData.requests || !Array.isArray(importData.requests)) {
+      throw new Error('Invalid import file format. Expected a "requests" array.');
+    }
+    
+    // Clear existing data
+    await browser.runtime.sendMessage({ type: 'CLEAR_DATA' });
+    
+    // Import requests
+    const response = await browser.runtime.sendMessage({
+      type: 'IMPORT_REQUESTS',
+      requests: importData.requests
+    });
+    
+    if (response.success) {
+      hasImportedData = true;
+      
+      // Reload requests to display imported data
+      await loadRequests();
+      
+      showNotification(
+        `Successfully imported ${importData.requests.length} requests`,
+        'success'
+      );
+    } else {
+      showNotification(`Import failed: ${response.error}`, 'error');
+    }
+    
+  } catch (error) {
+    console.error('Import failed:', error);
+    showNotification(
+      `Import failed: ${error.message || 'Invalid JSON file'}`,
+      'error'
+    );
+  } finally {
+    // Reset file input so the same file can be imported again
+    importFileInput.value = '';
+  }
+}
+
+/**
  * Handle toggle list visibility
  */
 function handleToggleList() {
@@ -275,7 +374,7 @@ function handleToggleList() {
     // Hide the list and filters
     filterPanel.style.display = 'none';
     requestListContainer.style.display = 'none';
-    toggleLabel.textContent = 'Show List';
+    toggleLabel.textContent = 'Advanced';
   }
 }
 
@@ -394,12 +493,10 @@ function renderRequestList() {
 
 /**
  * Create request item HTML
+ * Note: Time and Type are hidden from UI but still included in JSON export
  */
 function createRequestItem(request) {
   const statusClass = getStatusClass(request.statusCode);
-  const typeClass = `type-${request.apiType.toLowerCase()}`;
-  const duration = request.duration ? `${request.duration}ms` : '-';
-  const time = formatTime(request.timestamp);
   const url = truncateUrl(request.url, 50);
   
   return `
@@ -407,8 +504,6 @@ function createRequestItem(request) {
       <span class="request-method ${request.method.toLowerCase()}">${request.method}</span>
       <span class="request-url" title="${request.url}">${url}</span>
       <span class="request-status">${request.statusCode || '-'}</span>
-      <span class="request-type ${typeClass}">${request.apiType}</span>
-      <span class="request-time">${duration}</span>
     </div>
   `;
 }

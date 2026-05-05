@@ -5,7 +5,7 @@
 
 const StorageManager = {
   requests: new Map(),
-  maxRequests: 2000,
+  maxRequests: 4000,
   isInitialized: false,
   
   /**

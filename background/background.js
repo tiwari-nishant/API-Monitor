@@ -189,6 +189,10 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleExportJSON(message.filters, sendResponse);
       return true; // Async response
       
+    case 'IMPORT_REQUESTS':
+      handleImportRequests(message.requests, sendResponse);
+      return true; // Async response
+      
     case 'SET_MAX_REQUESTS':
       StorageManager.setMaxRequests(message.maxRequests);
       sendResponse({ success: true });
@@ -222,7 +226,6 @@ async function handleExportJSON(filters, sendResponse) {
       status: req.statusCode,
       statusText: req.statusLine,
       duration: req.duration,
-      type: req.apiType,
       id: req.id,
       timestamp: req.timestamp,
       date: new Date(req.timestamp).toISOString(),
@@ -257,6 +260,77 @@ async function handleExportJSON(filters, sendResponse) {
   } catch (error) {
     console.error('Export JSON failed:', error);
     sendResponse({ success: false, error: error.message });
+  }
+}
+
+/**
+ * Handle import requests
+ */
+async function handleImportRequests(requests, sendResponse) {
+  try {
+    if (!Array.isArray(requests)) {
+      throw new Error('Invalid requests data: expected an array');
+    }
+    
+    console.log(`Importing ${requests.length} requests...`);
+    
+    // Import each request
+    let importedCount = 0;
+    for (const req of requests) {
+      try {
+        // Ensure request has required fields
+        if (!req.url || !req.method) {
+          console.warn('Skipping invalid request:', req);
+          continue;
+        }
+        
+        // Create a properly formatted request object
+        const requestData = {
+          id: req.id || `imported_${Date.now()}_${importedCount}`,
+          timestamp: req.timestamp || Date.now(),
+          url: req.url,
+          method: req.method,
+          statusCode: req.status || req.statusCode,
+          statusLine: req.statusText || req.statusLine,
+          duration: req.duration,
+          requestHeaders: req.requestHeaders || {},
+          requestBody: req.requestBody,
+          responseHeaders: req.responseHeaders || {},
+          responseBody: req.responseBody,
+          tabId: req.tabId || -1,
+          frameId: req.frameId || 0,
+          completed: true,
+          status: 'completed'
+        };
+        
+        // Add to storage
+        await StorageManager.addRequest(requestData);
+        importedCount++;
+      } catch (error) {
+        console.error('Failed to import request:', error, req);
+      }
+    }
+    
+    console.log(`Successfully imported ${importedCount} of ${requests.length} requests`);
+    
+    // Notify sidebars of the update
+    broadcastMessage({
+      type: 'REQUESTS_UPDATED',
+      count: StorageManager.requests.size,
+      stats: StorageManager.getStatistics()
+    });
+    
+    sendResponse({
+      success: true,
+      imported: importedCount,
+      total: requests.length
+    });
+  } catch (error) {
+    console.error('Import failed:', error);
+    sendResponse({
+      success: false,
+      error: error.message
+    });
   }
 }
 

@@ -23,12 +23,17 @@
         </button>
         <button id="stopBtn" class="btn btn-secondary" disabled>
           <span class="btn-icon">⏸</span>
-          Stop Recording
+          End Recording
         </button>
         <button id="exportJsonBtn" class="btn btn-export" title="Export as JSON">
           <span class="btn-icon">📥</span>
           Export
         </button>
+        <button id="importJsonBtn" class="btn btn-import" title="Import JSON">
+          <span class="btn-icon">📤</span>
+          Import
+        </button>
+        <input type="file" id="importFileInput" accept=".json" style="display: none;">
       </div>
     </div>
     
@@ -53,9 +58,9 @@
       </div>
       -->
       <div class="toggle-container">
-        <span class="toggle-label" id="toggleLabel">Hide List</span>
+        <span class="toggle-label" id="toggleLabel"></span>
         <label class="toggle-switch" title="Toggle request list visibility">
-          <input type="checkbox" id="toggleListBtn" checked>
+          <input type="checkbox" id="toggleListBtn">
           <span class="toggle-slider"></span>
         </label>
       </div>
@@ -96,8 +101,6 @@
         <span class="header-method">Method</span>
         <span class="header-url">URL</span>
         <span class="header-status">Status</span>
-        <span class="header-type">Type</span>
-        <span class="header-time">Time</span>
       </div>
       
       <div class="request-list" id="requestList">

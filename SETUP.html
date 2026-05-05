@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenBMC GUI Monitor - Setup Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .step {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-right: 15px;
+        }
+
+        .step h2 {
+            display: inline-block;
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .step-content {
+            margin-top: 20px;
+            padding-left: 55px;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .command {
+            color: #50fa7b;
+        }
+
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .note strong {
+            color: #856404;
+        }
+
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .warning strong {
+            color: #721c24;
+        }
+
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .success strong {
+            color: #155724;
+        }
+
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .checklist li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .checklist li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background 0.3s;
+            margin: 10px 10px 10px 0;
+        }
+
+        .button:hover {
+            background: #5568d3;
+        }
+
+        .button-secondary {
+            background: #6c757d;
+        }
+
+        .button-secondary:hover {
+            background: #5a6268;
+        }
+
+        .file-structure {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin: 15px 0;
+        }
+
+        .file-structure .folder {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .file-structure .file {
+            color: #333;
+        }
+
+        .screenshot-placeholder {
+            background: #e9ecef;
+            border: 2px dashed #6c757d;
+            border-radius: 6px;
+            padding: 40px;
+            text-align: center;
+            color: #6c757d;
+            margin: 15px 0;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            color: #6c757d;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .step {
+                padding: 20px;
+            }
+
+            .step-content {
+                padding-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 OpenBMC GUI Monitor</h1>
+            <p>Complete Setup Guide - From Zero to Hero</p>
+        </div>
+
+        <div class="content">
+            <div class="success">
+                <strong>Welcome!</strong> This guide will walk you through setting up the OpenBMC GUI Monitor extension from scratch. Follow each step carefully for a smooth installation.
+            </div>
+
+            <!-- Step 1: Prerequisites -->
+            <div class="step">
+                <span class="step-number">1</span>
+                <h2>Prerequisites Check</h2>
+                <div class="step-content">
+                    <p>Before you begin, ensure you have the following:</p>
+                    <ul class="checklist">
+                        <li>Firefox Browser (version 78 or higher)</li>
+                        <li>Basic understanding of browser extensions</li>
+                        <li>Text editor (VS Code, Sublime, or any editor)</li>
+                        <li>Terminal/Command Prompt access</li>
+                    </ul>
+                    
+                    <div class="note">
+                        <strong>Note:</strong> This extension is specifically designed for Firefox. Chrome/Edge support is planned for future releases.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Download/Clone -->
+            <div class="step">
+                <span class="step-number">2</span>
+                <h2>Get the Extension Files</h2>
+                <div class="step-content">
+                    <p>Clone the repository to get the extension files:</p>
+                    
+                    <h3>Clone from Git Repository</h3>
+                    <div class="code-block">
+                        <span class="command">git clone https://github.com/tiwari-nishant/API-Monitor.git</span><br>
+                        <span class="command">cd API-Monitor</span>
+                    </div>
+
+                    <div class="note">
+                        <strong>Tip:</strong> Choose a permanent location for the extension files. Don't place them in temporary folders like Downloads or Desktop.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Verify File Structure -->
+            <div class="step">
+                <span class="step-number">3</span>
+                <h2>Verify File Structure</h2>
+                <div class="step-content">
+                    <p>Ensure your directory contains all required files:</p>
+                    
+                    <div class="file-structure">
+<pre>API-Monitor/
+├── <span class="file">manifest.json</span>          # Extension configuration
+├── <span class="folder">background/</span>
+│   ├── <span class="file">background.js</span>      # Main coordinator
+│   ├── <span class="file">request-interceptor.js</span>  # Network capture
+│   └── <span class="file">storage-manager.js</span>      # Data management
+├── <span class="folder">sidebar/</span>
+│   ├── <span class="file">sidebar.html</span>       # UI structure
+│   ├── <span class="file">sidebar.js</span>         # UI logic
+│   └── <span class="file">sidebar.css</span>        # Styling
+├── <span class="folder">utils/</span>
+│   └── <span class="file">request-parser.js</span>  # Request parsing
+├── <span class="folder">icons/</span>
+│   ├── <span class="file">icon-16.png</span>
+│   ├── <span class="file">icon-48.png</span>
+│   └── <span class="file">icon-96.png</span>
+└── <span class="file">README.md</span>              # Documentation</pre>
+                    </div>
+
+                    <div class="warning">
+                        <strong>Important:</strong> If any files are missing, the extension will not work properly. Re-download or check your extraction.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Generate Icons (Optional) -->
+            <div class="step">
+                <span class="step-number">4</span>
+                <h2>Generate Icons (Optional)</h2>
+                <div class="step-content">
+                    <p>If PNG icons are missing, you can generate them:</p>
+                    
+                    <ol>
+                        <li>Open <code>icons/create-icons.html</code> in your browser</li>
+                        <li>Click the download buttons for each icon size</li>
+                        <li>Save the icons in the <code>icons/</code> folder</li>
+                    </ol>
+
+                    <div class="note">
+                        <strong>Note:</strong> The extension can work with SVG icons if PNG files are not available. This step is optional.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Load Extension in Firefox -->
+            <div class="step">
+                <span class="step-number">5</span>
+                <h2>Load Extension in Firefox</h2>
+                <div class="step-content">
+                    <p>Follow these steps to install the extension:</p>
+                    
+                    <ol>
+                        <li><strong>Open Firefox</strong></li>
+                        <li><strong>Navigate to:</strong> <code>about:debugging</code> in the address bar</li>
+                        <li><strong>Click:</strong> "This Firefox" in the left sidebar</li>
+                        <li><strong>Click:</strong> "Load Temporary Add-on..." button</li>
+                        <li><strong>Navigate to:</strong> Your extension folder</li>
+                        <li><strong>Select:</strong> <code>manifest.json</code> file</li>
+                        <li><strong>Click:</strong> "Open"</li>
+                    </ol>
+
+                    <div class="screenshot-placeholder">
+                        📸 Screenshot: Firefox about:debugging page
+                    </div>
+
+                    <div class="success">
+                        <strong>Success!</strong> You should see "OpenBMC GUI Monitor" appear in the list of temporary extensions.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Verify Installation -->
+            <div class="step">
+                <span class="step-number">6</span>
+                <h2>Verify Installation</h2>
+                <div class="step-content">
+                    <p>Check that the extension is working correctly:</p>
+                    
+                    <ul class="checklist">
+                        <li>Extension icon appears in Firefox toolbar</li>
+                        <li>No error messages in about:debugging</li>
+                        <li>Extension shows as "Running"</li>
+                        <li>Version number matches (1.0.0)</li>
+                    </ul>
+
+                    <div class="note">
+                        <strong>Troubleshooting:</strong> If you see errors, check the Browser Console (Ctrl+Shift+J) for details.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7: Open Sidebar -->
+            <div class="step">
+                <span class="step-number">7</span>
+                <h2>Open the Sidebar</h2>
+                <div class="step-content">
+                    <p>Access the extension's interface:</p>
+                    
+                    <h3>Method 1: Click Extension Icon</h3>
+                    <ol>
+                        <li>Look for the extension icon in the Firefox toolbar</li>
+                        <li>Click the icon</li>
+                        <li>Sidebar opens on the right side</li>
+                    </ol>
+
+                    <h3>Method 2: Firefox Menu</h3>
+                    <ol>
+                        <li>Go to: View → Sidebar</li>
+                        <li>Select: "OpenBMC GUI Monitor"</li>
+                    </ol>
+
+                    <div class="screenshot-placeholder">
+                        📸 Screenshot: Extension sidebar interface
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 8: Configure Settings -->
+            <div class="step">
+                <span class="step-number">8</span>
+                <h2>Configure Settings (Optional)</h2>
+                <div class="step-content">
+                    <p>Customize the extension for your needs:</p>
+                    
+                    <h3>Remove Redfish URL Filter</h3>
+                    <p>By default, only Redfish API calls are captured. To capture all requests:</p>
+                    
+                    <ol>
+                        <li>Open: <code>background/request-interceptor.js</code></li>
+                        <li>Find the <code>shouldCaptureUrl()</code> method (around line 26)</li>
+                        <li>Comment out the Redfish filter section</li>
+                        <li>Return <code>true</code> to capture all requests</li>
+                    </ol>
+
+                    <div class="code-block">
+<pre>shouldCaptureUrl(url) {
+  // Exclude node_modules and src/views
+  if (url.includes('/node_modules/') || url.includes('/src/views/')) {
+    return false;
+  }
+  
+  // Capture all requests (Redfish filter removed)
+  return true;
+}</pre>
+                    </div>
+
+                    <h3>Remove Domain Filter (stglabs)</h3>
+                    <p>To capture requests from any domain:</p>
+                    
+                    <ol>
+                        <li>Open: <code>background/request-interceptor.js</code></li>
+                        <li>Find <code>handleBeforeRequest()</code> method (around line 203)</li>
+                        <li>Comment out the stglabs check</li>
+                    </ol>
+
+                    <div class="code-block">
+<pre>// Comment out this section:
+/*
+if (!this.isStglabsTab()) {
+  console.log('Ignoring request - active tab is not a stglabs domain');
+  return;
+}
+*/</pre>
+                    </div>
+
+                    <div class="warning">
+                        <strong>Important:</strong> After making changes, reload the extension in about:debugging.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 9: Test the Extension -->
+            <div class="step">
+                <span class="step-number">9</span>
+                <h2>Test the Extension</h2>
+                <div class="step-content">
+                    <p>Verify everything works correctly:</p>
+                    
+                    <ol>
+                        <li><strong>Open the sidebar</strong> (if not already open)</li>
+                        <li><strong>Click "Start Recording"</strong> button</li>
+                        <li><strong>Navigate to a website</strong> (e.g., OpenBMC interface)</li>
+                        <li><strong>Perform some actions</strong> that trigger API calls</li>
+                        <li><strong>Check the sidebar</strong> - requests should appear</li>
+                        <li><strong>Click a request</strong> to view details</li>
+                        <li><strong>Click "Stop Recording"</strong> when done</li>
+                        <li><strong>Click "JSON"</strong> to export data</li>
+                    </ol>
+
+                    <div class="success">
+                        <strong>Success!</strong> If you see requests appearing and can export them, the extension is working perfectly!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 10: Troubleshooting -->
+            <div class="step">
+                <span class="step-number">10</span>
+                <h2>Troubleshooting Common Issues</h2>
+                <div class="step-content">
+                    <h3>Extension Not Loading</h3>
+                    <ul>
+                        <li>Check that manifest.json is valid JSON</li>
+                        <li>Verify all file paths in manifest.json are correct</li>
+                        <li>Look for errors in Browser Console (Ctrl+Shift+J)</li>
+                    </ul>
+
+                    <h3>No Requests Captured</h3>
+                    <ul>
+                        <li>Ensure recording is started (button should show "Stop Recording")</li>
+                        <li>Check URL filters in request-interceptor.js</li>
+                        <li>Verify the website is making network requests</li>
+                        <li>Check domain filter (stglabs) if applicable</li>
+                    </ul>
+
+                    <h3>Sidebar Not Opening</h3>
+                    <ul>
+                        <li>Try restarting Firefox</li>
+                        <li>Reload the extension in about:debugging</li>
+                        <li>Check if sidebar is enabled in Firefox settings</li>
+                    </ul>
+
+                    <h3>Export Not Working</h3>
+                    <ul>
+                        <li>Check Firefox download permissions</li>
+                        <li>Verify storage permissions in manifest.json</li>
+                        <li>Look for errors in Browser Console</li>
+                    </ul>
+
+                    <div class="note">
+                        <strong>Still Having Issues?</strong> Check the TROUBLESHOOTING.md file for more detailed solutions.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div class="step">
+                <span class="step-number">✓</span>
+                <h2>Next Steps</h2>
+                <div class="step-content">
+                    <p>Now that your extension is set up, explore these features:</p>
+                    
+                    <ul class="checklist">
+                        <li>Filter requests by method (GET, POST, PUT, DELETE)</li>
+                        <li>Search requests by URL</li>
+                        <li>View detailed request/response information</li>
+                        <li>Export captured data as JSON</li>
+                        <li>Monitor real-time statistics</li>
+                    </ul>
+
+                    <div class="note">
+                        <strong>Pro Tip:</strong> Read the QUICKSTART.md guide for advanced usage tips and best practices.
+                    </div>
+
+                    <a href="README.md" class="button">Read Full Documentation</a>
+                    <a href="QUICKSTART.md" class="button button-secondary">Quick Start Guide</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>OpenBMC GUI Monitor</strong> - Version 1.0.0</p>
+            <p>Made with ❤️ for developers who need to monitor API calls</p>
+            <p>
+                <a href="README.md">Documentation</a> •
+                <a href="TROUBLESHOOTING.md">Troubleshooting</a> •
+                <a href="https://github.com/your-repo">GitHub</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
