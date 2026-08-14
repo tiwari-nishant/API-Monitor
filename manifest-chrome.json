@@ -1,5 +1,5 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "name": "OpenBMC GUI Monitor",
   "version": "1.0.0",
   "description": "Monitor and capture OpenBMC Redfish API calls with export functionality for REST and WebSocket connections",
@@ -13,31 +13,31 @@
   },
   
   "permissions": [
+    "webRequest",
+    "webRequestBlocking",
     "storage",
     "tabs",
     "downloads",
-    "webRequest",
-    "sidePanel"
-  ],
-  
-  "host_permissions": [
     "<all_urls>"
   ],
   
   "background": {
-    "service_worker": "background/service-worker.js"
+    "scripts": [
+      "utils/request-parser.js",
+      "background/storage-manager.js",
+      "background/request-interceptor.js",
+      "background/background.js"
+    ],
+    "persistent": true
   },
   
-  "action": {
+  "browser_action": {
     "default_icon": {
       "16": "icons/icon-16.png",
       "48": "icons/icon-48.png",
       "96": "icons/icon-96.png"
     },
-    "default_title": "Open OpenBMC Monitor Sidebar"
-  },
-  
-  "side_panel": {
-    "default_path": "sidebar/sidebar.html"
+    "default_title": "Open OpenBMC Monitor",
+    "default_popup": "sidebar/sidebar.html"
   }
 }

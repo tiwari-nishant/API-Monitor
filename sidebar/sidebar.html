@@ -4,7 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OpenBMC GUI Monitor</title>
-  <link rel="stylesheet" href="sidebar.css">
+  <script>
+    // Detect browser and load appropriate CSS
+    const isChrome = typeof chrome !== 'undefined' && typeof chrome.runtime !== 'undefined' && !navigator.userAgent.includes('Firefox');
+    const cssFile = isChrome ? 'popup.css' : 'sidebar.css';
+    document.write('<link rel="stylesheet" href="' + cssFile + '">');
+  </script>
 </head>
 <body>
   <div class="container">

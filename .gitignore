@@ -1,0 +1,35 @@
+# Firefox Extension Build Artifacts
+web-ext-artifacts/
+*.xpi
+
+# Chrome Extension Build Artifacts
+chrome-dist/
+safari-dist/
+
+# Web-ext ignore file (keep this in git)
+# .web-ext-ignore
+
+# API Credentials (NEVER commit these!)
+.env
+.env.local
+firefox-credentials.txt
+
+# Manifest backups (keep originals in git)
+# manifest-firefox.json
+# manifest-chrome.json
+
+# Node modules
+node_modules/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.log
+
+# Made with Bob

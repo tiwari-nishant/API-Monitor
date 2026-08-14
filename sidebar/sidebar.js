@@ -254,24 +254,36 @@ async function handleClearData() {
  */
 async function handleExport(format) {
   try {
-    // Get current filters to export only visible requests
     const filters = {
       search: searchInput.value.trim(),
       method: methodFilter.value,
       status: statusFilter.value
     };
-    
-    const messageType = format === 'json' ? 'EXPORT_JSON' : 'EXPORT_CSV';
+
     const response = await browser.runtime.sendMessage({
-      type: messageType,
+      type: 'EXPORT_JSON',
       filters: filters
     });
-    
-    if (response.success) {
-      showNotification(`Exported ${response.filename || format.toUpperCase()}`, 'success');
-    } else {
+
+    if (!response.success) {
       showNotification(`Export failed: ${response.error}`, 'error');
+      return;
     }
+
+    // Safari has no downloads API — trigger download via anchor element.
+    // This also works on Firefox and Chrome, so the same sidebar.js works everywhere.
+    const jsonString = JSON.stringify(response.exportData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `api-monitor-export-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showNotification('Exported JSON', 'success');
   } catch (error) {
     console.error('Export failed:', error);
     showNotification('Export failed', 'error');
